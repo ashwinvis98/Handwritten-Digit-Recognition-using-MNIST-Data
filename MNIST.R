@@ -34,10 +34,10 @@ pcaX <- prcomp(Xcov)
 # Creating a data table to store and plot the No of Principal Components vs Cumulative Variance #Explaied
 vexplained <- as.data.frame(pcaX$sdev^2/sum(pcaX$sdev^2))
 vexplained <- cbind( c(1:784),vexplained , cumsum( vexplained [ ,1] ) )
-colnames( vexplained ) <- c("No_of _Principal_Components " ,
+colnames(vexplained) <- c("No_of_Principal_Components " ,
 "Individual_Variance_Explained","Cumulative_Variance_Explained" )
 #Plotting the curve using the data table obtained
-plot(vexplained$No_of _Pr inc ipa l_Components,
+plot(vexplained$No_of_Principal_Components,
 vexplained$Cumulative_Variance_Explained,
 xlim = c(0,100) , type= ’b ’ , pch=16 , xlab ="Principal Components " , ylab = " Cumulative Variance Explained " ,
 main=’ Principal Components vs Cumulative Variance Explained ’ )
