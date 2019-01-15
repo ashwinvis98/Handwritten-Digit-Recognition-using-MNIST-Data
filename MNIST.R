@@ -7,7 +7,6 @@ selsize <-floor(0.7*nrow(train) )
 sel_ind <- sample(seq_len(nrow(train) ) , size= selsize)
 trainset <- train[sel_ind , ]
 cvset <- train[-sel_ind , ]
-
 X <- trainset[ ,-1]
 Y < trainset [ , 1]
 trainlabel <- trainset [ , 1]
@@ -27,26 +26,31 @@ m <- matrix(unlist (X[212, ] ),nrow = 28 , ncol = 28)
 image(m,axes=FALSE)
 
 #Reducing Train and CV using PCA
+
 Xreduced <- X/ 255
 Xcov <- cov(Xreduced)
 pcaX <- prcomp(Xcov)
 
-# Creating a data table to store and plot the No of Principal Components vs Cumulative Variance #Explaied
+# Creating a data table to store and plot the No of Principal Components vs Cumulative Variance Explaied
+
 vexplained <- as.data.frame(pcaX$sdev^2/sum(pcaX$sdev^2))
 vexplained <- cbind( c(1:784),vexplained , cumsum( vexplained [ ,1] ) )
 colnames(vexplained) <- c("No_of_Principal_Components " ,
 "Individual_Variance_Explained","Cumulative_Variance_Explained" )
+
 #Plotting the curve using the data table obtained
-plot(vexplained$No_of_Principal_Components,
-vexplained$Cumulative_Variance_Explained,
-xlim = c(0,100) , type= ’b ’ , pch=16 , xlab ="Principal Components " , ylab = " Cumulative Variance Explained " ,
-main=’ Principal Components vs Cumulative Variance Explained ’ )
+
+plot(vexplained$No_of_Principal_Components,vexplained$Cumulative_Variance_Explained,
+xlim = c(0,100) , type= â€™b â€™ , pch=16 , xlab ="Principal Components " , ylab = " Cumulative Variance Explained " ,
+main=â€™ Principal Components vs Cumulative Variance Explained â€™ )
 
 # Data table to store the summary of the data table obtained
+
 vexplainedsummary <- vexplained [seq (0,100,5) , ]
 vexplainedsummary
-# Storing the vexplainedsummary data table in png
-# format for future reference.
+
+# Storing the vexplainedsummary data table in png format for future reference.
+
 library( gridExtra)
 png ("datatablevarianceexplained.png" , height = 800 ,width =1000)
 p <-tableGrob(vexplainedsummary)
@@ -55,27 +59,28 @@ dev.off()
 Xfinal <- as.matrix(Xreduced)%*% pcaX$x [,1:45]
 cvreduced<- cvset[,-1]/255
 cvfinal <- as.matrix(cvreduced ) %*% pcaX$x[,1:45]
+
 # Making training and cvset labels as factors
+
 cvlabel <- as.factor(cvlabel)
 trainlabel <- as.factor(trainlabel)
 
-#Making a datatable to store errors for choosing the parameter
-#C using model selection
+#Making a datatable to store errors for choosing the parameter C using model selection
+
 datatable_model_selection <- data.frame(c(0.1,0.5,1,10,20),
 c(NA,NA,NA,NA,NA),c(NA,NA,NA,NA,NA))
-
 colnames(datatable_model_selection) <- c("C" ,"Accuracytrain","AccuracyCV")
 view(datatable_model_selection)
 
-# Function to calculate accuracy for various C and store resultant
-# train and cv accuracy in data table
+# Function to calculate accuracy for various C and store resultant train and cv accuracy in data table
+
 calculate_accuracy<- function(variancefactor)
 {
 require(e1071)
 svm.model <- svm(Xfinal , as.factor(trainlabel),cost = variacefactor)
 prediction <- predict(svm.model,Xfinal)
 table(prediction,trainlabel)
-correct<- preiction= trainlabel
+correct<-prediction= trainlabel
 AccuracyTrain <- (sum(correct) / nrow(Xfinal ) )*100
 cat(sprintf("Accuracytrain:%f\n" , AccuracyTrain ) )
 prediction2 <- predict(svm.model,cvfinal)
@@ -87,6 +92,7 @@ return(c( AccuracyTrain,AccuracyCV) )
 }
 
 # Applying the function to all the rows of data table
+
 for(j in 1:5 )
 {
 temp<-calculate_accuracy(datatable_model_selection[ j ,1] )
@@ -95,13 +101,13 @@ datatable_model_selection[ j , 3]<-temp[2]
 }
 
 #Adding columns for errors in datatable
-datatable_model_selection$Trainset_Error <-
-(100-datatable_model_selection$Accuracytrain)
-datatable_model_selection$CVset_Error <-
-(100-datatable_model_selection$AccuracyCV)
+
+datatable_model_selection$Trainset_Error <- (100-datatable_model_selection$Accuracytrain)
+datatable_model_selection$CVset_Error <- (100-datatable_model_selection$AccuracyCV)
 datatable_model_selection 
 
 # Storing the datatable in png format for future reference .
+
 library(gridExtra)
 png ("datatable.png" , height = 300 ,width = 4000)
 p <-tableGrob(datatable_model_selection)
@@ -115,6 +121,7 @@ plotdataframe <- datatable_no_of_nodes [,c(1,4,5)]
 # melting the data frame to feed to ggplot() function
 library(reshape2)
 meltedframe <- melt(plotdataframe , id="C" )
+
 #Applying g g p l o t ( ) f u n c t i o n
 library(ggplot2)
 finalplot<- ggplot(meltedframe , aes(C, value , color=variable ) )
